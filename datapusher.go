@@ -49,12 +49,6 @@ func Init(config *Config) error{
 	if config.AccessKey == "" {
 		return errors.New("miss accessKey")
 	}
-	if config.Event == "" {
-		return errors.New("miss event")
-	}
-	if config.Url == "" {
-		return errors.New("miss url")
-	}
 	DataPushConfig = config
 	return nil
 }
@@ -64,17 +58,37 @@ func Post(ob interface{}) error {
 	if ob == nil {
 		return errors.New("miss object")
 	}
+	if DataPushConfig.Event == "" {
+		return errors.New("miss event")
+	}
 	dat, err := json.Marshal(ob)
 	if err != nil {
 		return err
 	}
 
-	go postDate(dat)
+	go postDate(dat, DataPushConfig.Event)
 	return nil
 }
 
 // Post data to DataPusher via http POST
-func postDate(dat []byte) error {
+func PostWithEvent(ob interface{}, event string) error {
+	if ob == nil {
+		return errors.New("miss object")
+	}
+	if event == "" {
+		return errors.New("miss event")
+	}
+	dat, err := json.Marshal(ob)
+	if err != nil {
+		return err
+	}
+
+	go postDate(dat, event)
+	return nil
+}
+
+// Post data to DataPusher via http POST
+func postDate(dat []byte, event string) error {
 	client := &http.Client{
 		Timeout: 3 * time.Second,
 	}
@@ -82,7 +96,7 @@ func postDate(dat []byte) error {
 	if DataPushConfig.Url != "" {
 		host = DataPushConfig.Url
 	}
-	invokeUrl := fmt.Sprintf("%s/v1/project/%s/events/%s", host, DataPushConfig.AccessKey, DataPushConfig.Event)
+	invokeUrl := fmt.Sprintf("%s/v1/project/%s/events/%s", host, DataPushConfig.AccessKey, event)
 	req, err := http.NewRequest("POST", invokeUrl, bytes.NewBuffer(dat))
 	if err != nil {
 		return err
