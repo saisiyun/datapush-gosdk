@@ -41,6 +41,7 @@ type Config struct {
 
 var DataPushConfig *Config
 
+// Initial config
 func Init(config *Config) error{
 	if config == nil {
 		return errors.New("miss config")
@@ -58,6 +59,7 @@ func Init(config *Config) error{
 	return nil
 }
 
+// Post data to DataPusher via http POST
 func Post(ob interface{}) error {
 	if ob == nil {
 		return errors.New("miss object")
@@ -71,7 +73,7 @@ func Post(ob interface{}) error {
 	return nil
 }
 
-
+// Post data to DataPusher via http POST
 func postDate(dat []byte) error {
 	client := &http.Client{
 		Timeout: 3 * time.Second,
