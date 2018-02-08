@@ -39,7 +39,7 @@ type Config struct {
 	Url string
 }
 
-var DataPushConfig *Config
+var dataPushConfig *Config
 
 // Initial config
 func Init(config *Config) error{
@@ -49,7 +49,7 @@ func Init(config *Config) error{
 	if config.AccessKey == "" {
 		return errors.New("miss accessKey")
 	}
-	DataPushConfig = config
+	dataPushConfig = config
 	return nil
 }
 
@@ -58,7 +58,7 @@ func Post(ob interface{}) error {
 	if ob == nil {
 		return errors.New("miss object")
 	}
-	if DataPushConfig.Event == "" {
+	if dataPushConfig.Event == "" {
 		return errors.New("miss event")
 	}
 	dat, err := json.Marshal(ob)
@@ -66,7 +66,7 @@ func Post(ob interface{}) error {
 		return err
 	}
 
-	go postDate(dat, DataPushConfig.Event)
+	go postDate(dat, dataPushConfig.Event)
 	return nil
 }
 
@@ -93,10 +93,10 @@ func postDate(dat []byte, event string) error {
 		Timeout: 3 * time.Second,
 	}
 	host := "http://123.207.72.235:3000"
-	if DataPushConfig.Url != "" {
-		host = DataPushConfig.Url
+	if dataPushConfig.Url != "" {
+		host = dataPushConfig.Url
 	}
-	invokeUrl := fmt.Sprintf("%s/v1/project/%s/events/%s", host, DataPushConfig.AccessKey, event)
+	invokeUrl := fmt.Sprintf("%s/v1/project/%s/events/%s", host, dataPushConfig.AccessKey, event)
 	req, err := http.NewRequest("POST", invokeUrl, bytes.NewBuffer(dat))
 	if err != nil {
 		return err
